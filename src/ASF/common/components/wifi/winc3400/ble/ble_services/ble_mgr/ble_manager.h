@@ -149,9 +149,11 @@ typedef struct ble_custom_event_cb {
 /* Dummy BLE handler's for unused functions */
 static inline void ble_dummy_handler(void *param)
 {
+	void gateway_set_hugeDataPublishFlag(void);
     //UNUSED(param);
     at_ble_characteristic_read_response_t *readParam = (at_ble_characteristic_read_response_t*)param;
 	DBG_LOG("Read Value [conn = 0x%X] [len=%d] = %d\r\n", readParam->conn_handle, readParam->char_len, readParam->char_value[0]);
+	gateway_set_hugeDataPublishFlag();
     //DBG_LOG_DEV("!:(:(");
 }
 

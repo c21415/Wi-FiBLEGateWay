@@ -822,7 +822,8 @@ void ble_event_manager(at_ble_events_t events, void *event_params)
 		conn_param.ce_len_min = updateReqParams->params.con_intv_max;
 		conn_param.ce_len_max = updateReqParams->params.con_intv_max;
 
-		at_ble_conn_update_reply(updateReqParams->handle, &conn_param);				
+		at_ble_conn_update_reply(updateReqParams->handle, &conn_param);		
+		gateway_set_connUpdateFlag(updateReqParams->handle);		
 	
 	}
 	break;
