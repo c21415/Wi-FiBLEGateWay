@@ -134,7 +134,7 @@ extern uint8 ble_wifi_scan_mode;
 
 void gateway_set_hugeDataPublishFlag(void)
 {
-	g_sendHugePublish = true;
+	
 }
 
 void gateway_set_connUpdateFlag(at_ble_handle_t connHdl)
@@ -276,6 +276,11 @@ at_ble_status_t gateway_trigger_ble_scan(void)
 void traeger_node_read(void)
 {
 	static uint8_t nodeIdx = 0;
+	
+	if(g_gw_wl_cfg_data.tot_wl_nodes <= g_gw_node_database.total_connected_clients)
+		g_sendHugePublish = true;
+	else
+		return;
 	
 	DBG_LOG("Query node %d\n", nodeIdx);
 	if(at_ble_characteristic_read(g_gw_node_database.client_details[nodeIdx].client_conn_handle, 35, 0, 1) == AT_BLE_SUCCESS)
@@ -860,7 +865,7 @@ static void mqtt_callback(struct mqtt_module *module_inst, int type, union mqtt_
 			/* Subscribe chat topic. */
 			gu8GwAppStatus = GW_APP_MQTT_CONNECTED;
 			sprintf(tmpSubTop, "%srx/#", g_mqtt_topic);
-			//mqtt_subscribe(module_inst, tmpSubTop, 0);	
+			mqtt_subscribe(module_inst, tmpSubTop, 0);	
 			DBG_LOG("Subscribing to MQTT topic %s", tmpSubTop);				
 			if(g_scanTimerId == -1)				
 				g_scanTimerId = gateway_scan_timer_start(GATEWAY_NODE_SCAN_INTERVAL);
