@@ -132,6 +132,11 @@ extern uint8 gu8ScanIndex;
 
 extern uint8 ble_wifi_scan_mode;
 
+void gateway_set_hugeDataPublishFlag(void)
+{
+	g_sendHugePublish = true;
+}
+
 void gateway_set_connUpdateFlag(at_ble_handle_t connHdl)
 {
 	g_gw_node_database.client_details[connHdl].connParamUpdateFlag = true;
@@ -271,9 +276,6 @@ at_ble_status_t gateway_trigger_ble_scan(void)
 void traeger_node_read(void)
 {
 	static uint8_t nodeIdx = 0;
-
-	if((g_gw_wl_cfg_data.tot_wl_nodes - g_gw_node_database.total_connected_clients) == 0)
-		g_sendHugePublish = true;
 	
 	DBG_LOG("Query node %d\n", nodeIdx);
 	if(at_ble_characteristic_read(g_gw_node_database.client_details[nodeIdx].client_conn_handle, 35, 0, 1) == AT_BLE_SUCCESS)
@@ -1244,7 +1246,7 @@ void gateway_event_task(void)
 		else
 		{
 			static uint8_t nodeIdx = 0;
-			if(nodeIdx < GATEWAY_SUPPORTED_NODES_MAX)
+			if(nodeIdx < g_gw_node_database.total_connected_clients)
 			{			
 				if(g_gw_node_database.client_details[nodeIdx].connParamUpdateFlag)
 				{
@@ -1253,8 +1255,6 @@ void gateway_event_task(void)
 				}
 				nodeIdx++;			
 			}
-			else
-				nodeIdx = 0;
 		}
 		
 		if(g_mqttRxData.mqttMsgLen)
