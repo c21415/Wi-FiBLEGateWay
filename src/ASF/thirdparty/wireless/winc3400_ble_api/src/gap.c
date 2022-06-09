@@ -566,6 +566,7 @@ int8_t at_ble_tx_power_get(at_ble_handle_t conn_handle)
 	// 0 for current PA gain
 	if (gapc_get_tx_pwr_req_handler(conn_handle,0) == AT_BLE_SUCCESS)
     {
+#if 0		
 		at_ble_events_t event;
 		gapc_con_tx_pow_get_ind params;
 		uint8_t escape = 0;
@@ -581,6 +582,7 @@ int8_t at_ble_tx_power_get(at_ble_handle_t conn_handle)
 				}
 			}
 		}
+#endif		
 	}
     return (int8_t)tx_pw;
 }
