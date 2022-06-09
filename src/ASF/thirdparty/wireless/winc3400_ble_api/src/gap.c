@@ -558,7 +558,7 @@ at_ble_status_t at_ble_tx_power_set(at_ble_handle_t conn_handle, int8_t powerdBm
 
     return tx_power_set_status;
 }
-extern int8_t m2m_wifi_handle_events(void * arg);
+
 int8_t at_ble_tx_power_get(at_ble_handle_t conn_handle)
 {
     uint8_t tx_pw = 0;
@@ -572,7 +572,7 @@ int8_t at_ble_tx_power_get(at_ble_handle_t conn_handle)
 	
 		while (++escape < 5)
 		{
-			if (at_ble_event_get(&event, &params, 10) == AT_BLE_SUCCESS)
+			if (at_ble_event_get(&event, &params, 100) == AT_BLE_SUCCESS)
 			{
 				if (event == AT_BLE_TX_POWER_VALUE)
 				{
