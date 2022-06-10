@@ -138,7 +138,7 @@ void gateway_set_hugeDataPublishFlag(void)
 }
 
 void gateway_set_connUpdateFlag(at_ble_handle_t connHdl)
-{
+{	
 	g_gw_node_database.client_details[connHdl].connParamUpdateFlag = true;
 }
 
@@ -728,7 +728,7 @@ void socket_callback(SOCKET sock, uint8 u8Msg, void * pvMsg)
 		{
 			tstrSocketRecvMsg	*strRecvMsg = (tstrSocketRecvMsg	*)pvMsg;
 			//uint8_t idx;
-			DBG_LOG("TCP Data is received on socket %d: ", sock);	
+			DBG_LOG_DEV("TCP Data is received on socket %d: ", sock);	
 			//for(idx = 0; idx < strRecvMsg->s16BufferSize; idx++)
 				//printf("0x%02X ", strRecvMsg->pu8Buffer[idx]);
 			if(memcmp(strRecvMsg->pu8Buffer, "WL_CFG_DONE", strlen("WL_CFG_DONE")) == 0)
@@ -786,7 +786,7 @@ void socket_callback(SOCKET sock, uint8 u8Msg, void * pvMsg)
 				}
 				else
 				{
-					DBG_LOG("Received TCP data size = %d\r\n", strRecvMsg->s16BufferSize);	
+					DBG_LOG_DEV("Received TCP data size = %d\r\n", strRecvMsg->s16BufferSize);	
 					if((send(sock, g_tcpTestData, 1024, 0)) != SOCK_ERR_NO_ERROR)
 					{
 						DBG_LOG("TCP send Error!");
@@ -1260,6 +1260,8 @@ void gateway_event_task(void)
 				}
 				nodeIdx++;			
 			}
+			else
+				nodeIdx = 0;
 		}
 		
 		if(g_mqttRxData.mqttMsgLen)
