@@ -794,7 +794,7 @@ void ble_event_manager(at_ble_events_t events, void *event_params)
 #if 0 // not the right way
     {
 		at_ble_conn_param_update_request_t *updateReqParams = (at_ble_conn_param_update_request_t *)event_params;
-		 DBG_LOG("Connection parameter update request: handle:%u con max:%X con min:%X latency:%u timeout:%u\n",
+		 DBG_LOG("Connection parameter update request: handle:%u con max:%d con min:%d latency:%u timeout:%u\n",
             updateReqParams->handle, updateReqParams->params.con_intv_max , updateReqParams->params.con_intv_min, 
 			updateReqParams->params.con_latency, updateReqParams->params.superv_to);
 			
@@ -814,16 +814,19 @@ void ble_event_manager(at_ble_events_t events, void *event_params)
 #else
 	{	
 		at_ble_conn_param_update_request_t *updateReqParams = (at_ble_conn_param_update_request_t *)event_params;
-		DBG_LOG("Connection parameter request: handle:%u con max:%X con min:%X latency:%u timeout:%u\n",
+		DBG_LOG("Connection parameter request: handle:%u con max:%d con min:%d latency:%u timeout:%u\n",
 		updateReqParams->handle, updateReqParams->params.con_intv_max , updateReqParams->params.con_intv_min,
 		updateReqParams->params.con_latency, updateReqParams->params.superv_to);
 
 		at_ble_connection_params_t conn_param;
-		conn_param.ce_len_min = updateReqParams->params.con_intv_max;
+		conn_param.ce_len_min = updateReqParams->params.con_intv_min;
 		conn_param.ce_len_max = updateReqParams->params.con_intv_max;
+		DBG_LOG("Setting ce min %d and ce max %d\n", conn_param.ce_len_min, conn_param.ce_len_max);
 
 		at_ble_conn_update_reply(updateReqParams->handle, &conn_param);		
+#ifdef DISCONN_NOTIFICAION_FIX			
 		gateway_set_connUpdateFlag(updateReqParams->handle);		
+#endif		
 	
 	}
 	break;
