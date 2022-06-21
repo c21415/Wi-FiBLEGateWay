@@ -136,11 +136,12 @@ void gateway_set_hugeDataPublishFlag(void)
 {
 	
 }
-
+#ifdef DISCONN_NOTIFICAION_FIX	
 void gateway_set_connUpdateFlag(at_ble_handle_t connHdl)
 {	
 	g_gw_node_database.client_details[connHdl].connParamUpdateFlag = true;
 }
+#endif
 
 uint8_t get_node_table_index(at_ble_addr_t *node_addr)
 {
@@ -282,7 +283,7 @@ void traeger_node_read(void)
 	else
 		return;
 	
-	DBG_LOG("Query node %d\n", nodeIdx);
+	
 	if(at_ble_characteristic_read(g_gw_node_database.client_details[nodeIdx].client_conn_handle, 35, 0, 1) == AT_BLE_SUCCESS)
 	{
 		DBG_LOG_DEV("Success:Requested battery value for node %d\r\n", nodeIdx);
@@ -290,9 +291,9 @@ void traeger_node_read(void)
 	else
 	{
 		DBG_LOG("Fail:Requested battery value for node %d\r\n", nodeIdx);
-	}
-	nodeIdx+=1;
-	if(nodeIdx >= g_gw_node_database.total_connected_clients)
+	}	
+	DBG_LOG("Query node %d\n", nodeIdx);
+	if(nodeIdx++ >= g_gw_node_database.total_connected_clients)
 		nodeIdx = 0;
 	
 }
@@ -304,7 +305,7 @@ void gw_scan_timer_callback(struct sw_timer_module *const module, int timer_id, 
 	
 	g_scanTick++;
 
-	if((g_scanTick % 200) == 0)
+	if((g_scanTick % 80) == 0)
 	{
 		g_reconnectMqtt = true; 
 	}
@@ -864,7 +865,7 @@ static void mqtt_callback(struct mqtt_module *module_inst, int type, union mqtt_
 		if (data->connected.result == MQTT_CONN_RESULT_ACCEPT) {
 			/* Subscribe chat topic. */
 			gu8GwAppStatus = GW_APP_MQTT_CONNECTED;
-			sprintf(tmpSubTop, "%srx/#", g_mqtt_topic);
+			sprintf(tmpSubTop, "%srx/#", MAIN_GATEWAY_TOPIC);
 			mqtt_subscribe(module_inst, tmpSubTop, 0);	
 			DBG_LOG("Subscribing to MQTT topic %s", tmpSubTop);				
 			if(g_scanTimerId == -1)				
@@ -936,6 +937,7 @@ static void mqtt_callback(struct mqtt_module *module_inst, int type, union mqtt_
 		//gateway_scan_timer_stop();
 		//g_scanTimerId = -1;
 		close(mqtt_inst.sock);
+		g_reconnectMqtt = false;
 		gu8GwAppStatus = GW_APP_WIFI_CONNECTED;
 		gu32NodeAliveFlag = 0;
 		mqtt_connect(module_inst, main_mqtt_broker); /* Retry that. */
@@ -1248,6 +1250,7 @@ void gateway_event_task(void)
 				//g_scan_list_count--;
 			//}
 		}
+#ifdef DISCONN_NOTIFICAION_FIX		
 		else
 		{
 			static uint8_t nodeIdx = 0;
@@ -1263,6 +1266,7 @@ void gateway_event_task(void)
 			else
 				nodeIdx = 0;
 		}
+#endif		
 		
 		if(g_mqttRxData.mqttMsgLen)
 		{
@@ -1277,8 +1281,6 @@ void gateway_event_task(void)
 		}
 		if(g_reconnectMqtt)
 		{
-			g_reconnectMqtt = false;
-			gu8GwAppStatus = GW_APP_WIFI_CONNECTED;
 			mqtt_disconnect(&mqtt_inst, 1);
 		}
 	}
